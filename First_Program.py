@@ -1,4 +1,6 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import cast, col,lit
+
 
 spark= (SparkSession.builder.appName("MyPysparkProgram").getOrCreate())
 
@@ -31,4 +33,31 @@ emp_schema = "employee_id string, department_id string, name string, age string,
 
 df= spark.createDataFrame(data=emp_data, schema=emp_schema)
 
-df.show()
+#df.show()
+
+filtered_df=df.select(df.employee_id,df.name,df.gender, df.salary) #Code to filter the columns from the main DF
+#filtered_df.show() #printing the filtered the columns
+
+#new_Filter_DF= filtered_df.select(filtered_df.employee_id,filtered_df.name,filtered_df.gender, 
+                                 # filtered_df.salary).where(filtered_df.salary ==54000)#Filtering records using where clause
+#ew_Filter_DF.show()
+
+filtered_df.printSchema()
+
+#Converted data type of a column using cast and col from sql functions
+main_df=filtered_df.select("employee_id","name","gender",col("salary").cast("double"))
+#main_df.show()
+main_df.printSchema()
+
+#Adding/Droping a column in the DF
+added_Df=main_df.withColumn("Tax", col("salary")*0.2)
+add1=added_Df.withColumn("one", lit(1))
+add1.show()
+add1.printSchema()
+
+#Renaming the data frame
+rename=add1.withColumnRenamed("Tax", "Taxed Salary")
+rename.show()
+
+changedType= main_df.select(col("salary").cast("int"))
+changedType.show(2)
